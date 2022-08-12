@@ -17,7 +17,7 @@
 rule C_COMPILER__ProvaFinale_API_2022_Debug
   depfile = $DEP_FILE
   deps = gcc
-  command = C:\PROGRA~1\JETBRA~1\CLION2~1.2\bin\mingw\bin\gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  command = /usr/bin/cc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
   description = Building C object $out
 
 
@@ -25,7 +25,7 @@ rule C_COMPILER__ProvaFinale_API_2022_Debug
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__ProvaFinale_API_2022_Debug
-  command = cmd.exe /C "$PRE_LINK && C:\PROGRA~1\JETBRA~1\CLION2~1.2\bin\mingw\bin\gcc.exe $FLAGS $LINK_FLAGS $in -o $TARGET_FILE -Wl,--out-implib,$TARGET_IMPLIB -Wl,--major-image-version,0,--minor-image-version,0 $LINK_PATH $LINK_LIBRARIES && $POST_BUILD"
+  command = $PRE_LINK && /usr/bin/cc $FLAGS $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = "C:\Program Files\JetBrains\CLion 2022.2\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -SC:\Users\david\Desktop\GitHub\ProvaFinale_API_2022 -BC:\Users\david\Desktop\GitHub\ProvaFinale_API_2022\cmake-build-debug
+  command = /home/davide/Scrivania/clion-2022.2/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/davide/Scrivania/GitHub/ProvaFinale_API_2022 -B/home/davide/Scrivania/GitHub/ProvaFinale_API_2022/cmake-build-debug
   description = Re-running CMake...
   generator = 1
 
@@ -51,7 +51,7 @@ rule RERUN_CMAKE
 # Rule for cleaning all built files.
 
 rule CLEAN
-  command = C:\PROGRA~1\JETBRA~1\CLION2~1.2\bin\ninja\win\ninja.exe $FILE_ARG -t clean $TARGETS
+  command = /home/davide/Scrivania/clion-2022.2/bin/ninja/linux/ninja $FILE_ARG -t clean $TARGETS
   description = Cleaning all built files...
 
 
@@ -59,6 +59,6 @@ rule CLEAN
 # Rule for printing all primary targets available.
 
 rule HELP
-  command = C:\PROGRA~1\JETBRA~1\CLION2~1.2\bin\ninja\win\ninja.exe -t targets
+  command = /home/davide/Scrivania/clion-2022.2/bin/ninja/linux/ninja -t targets
   description = All primary targets available:
 
