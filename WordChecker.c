@@ -14,12 +14,12 @@ struct Node *searchNode(struct Node **root, char str[N]);
 void insert(struct Node **root, struct Node *node);
 void printInOrder(struct Node *root);
 int addVocabulary(struct Node **root);
-void tryGuess(struct Node **root, char chosenWord[N], int n, int k);
+void tryGuess(struct Node **root, const char chosen_word[N], int n, int k);
 
 int main() {
     int k, n;
     int bool = 0;
-    char chosenWord[N];    //ottimizzare con addvocabulary?
+    char chosen_word[N];    //ottimizzare con addvocabulary?
     struct Node *root = NULL;
 
     scanf("%d", &k);
@@ -30,8 +30,8 @@ int main() {
         bool = addVocabulary(&root);
     }
     printInOrder(root);
-    scanf("%s\n%d", chosenWord, &n);
-    tryGuess(&root, chosenWord, n, k);
+    scanf("%s\n%d", chosen_word, &n);
+    tryGuess(&root, chosen_word, n, k);
 
 
     return 0;
@@ -92,33 +92,48 @@ int addVocabulary(struct Node **root){
     return 0;
 }
 
-void tryGuess(struct Node **root, char chosenWord[N], int n, int k){
+void tryGuess(struct Node **root, const char chosen_word[N], int n, int k){   //const?
     int cont = 0;
-    int n_char_chosenWord = 0;
-    int n_char_right_chosenWord = 0;
-    char str[N], res[N];
+    int n_char_chosen_word = 0;
+    int n_char_right_chosen_word = 0;
+    int diff_cont = 0;
+    char res[N];
+    char str[N];
 
-    scanf("%s", str);
     while(cont < n){
+        scanf("%s", str);
         if (searchNode(root, str) != NULL){
-            for (int i = 0; i < k; i++){
-                if(str[i] == chosenWord[i]){
-                    n_char_chosenWord++;
-                    n_char_right_chosenWord++;
-                    printf("%d +", k);
-                }else{
-                    for (int j = 1; j < k; j++) {
-                        if(chosenWord[j] == str[i]){
-                            n_char_chosenWord ++;
-                        }if(chosenWord[j] == str[i] && chosenWord[j] == str[j]){
-                            n_char_right_chosenWord++;
+            for (int i = 0; i < k; i++) {
+                if (str[i] == chosen_word[i]) {
+                    res[i] = '+';
+                } else {
+                    for (int j = 0; j < k; j++) {
+                        if (chosen_word[j] == str[i]) {
+                            n_char_chosen_word++;
+                            if (chosen_word[j] == str[j]) {
+                                n_char_right_chosen_word++;
+                            }
                         }
                     }
+                    for (int j = 0; j < i; j++) {
+                        if (str[j] == str[i] && str[j] != chosen_word[j]) {
+                            diff_cont++;
+                        }
+                    }
+                    if (diff_cont >= (n_char_chosen_word - n_char_right_chosen_word)) {
+                        res[i] = '/';
+                    } else {
+                        res[i] = '|';
+                    }
+                    n_char_chosen_word = 0;
+                    n_char_right_chosen_word = 0;
+                    diff_cont = 0;
                 }
             }
+            printf("%s\n", res);
             cont++;
         }else{
-            printf("not_exists");
+            printf("not_exists\n");
         }
     }
 }
