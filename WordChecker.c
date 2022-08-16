@@ -94,6 +94,7 @@ void tryGuess(struct Node **root, const char chosen_word[N], int n, int k) {   /
     int diff_cont = 0;
     char res[N], str[N];
 
+    res[k] = '\0';
     while (cont < n) {
         scanf("%s", str);
         if (strcmp(str, "+inserisci_inizio") == 0) {
