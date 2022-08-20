@@ -15,6 +15,7 @@ void insertNode(struct Node **root, struct Node *node);
 void printInOrder(struct Node *root);
 void addVocabulary(struct Node **root);
 void tryGuess(struct Node **root, const char chosen_word[N], int n, int k);
+void insertStart(struct Node **root, char chosenWord[N]);
 
 int main() {
     int k, n;
@@ -23,9 +24,12 @@ int main() {
 
     scanf("%d", &k);
     addVocabulary(&root);
-    printInOrder(root);
-    scanf("%s\n%d", chosen_word, &n);
-    tryGuess(&root, chosen_word, n, k);
+    //printInOrder(root);
+    while (1 == 1) {                                         //while feof
+        scanf("%s\n%d", chosen_word, &n);
+        tryGuess(&root, chosen_word, n, k);
+        insertStart(&root, chosen_word);   //uso la chosen_word come str temporanea
+    }
 
 
     return 0;
@@ -133,7 +137,7 @@ void tryGuess(struct Node **root, const char chosen_word[N], int n, int k) {   /
                     cont++;
                     break;
                 }if (i == k-1){
-                    printf("ok");
+                    printf("ok\n");
                     return;
                 }
             }
@@ -141,5 +145,13 @@ void tryGuess(struct Node **root, const char chosen_word[N], int n, int k) {   /
             printf("not_exists\n");
         }
     }
-    printf("ko");
+    printf("ko\n");
+}
+
+void insertStart(struct Node **root, char str[N]){
+    scanf("%s", str);
+    if (strcmp(str, "+inserisci_inizio") == 0) {
+        addVocabulary(root);
+        scanf("%s", str);
+    }
 }
