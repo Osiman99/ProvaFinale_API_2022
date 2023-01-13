@@ -12,10 +12,9 @@ typedef struct node {
 void insertNode(Node *node);
 void printTree(Node *x);
 int find(char string[]);
-void compare(char string[]);
+int compare(char string[]);
 
 int k;
-int win = 0;
 char reference[10];
 Node *root;
 
@@ -78,8 +77,7 @@ int main(){
                     if(!find(string)){
                         fprintf(stdout, "not_exists\n");
                     }else{
-                        compare(string);
-                        if (!win){
+                        if (!compare(string)){
                             //count();
                             count++;
                             if(count == attempts){
@@ -189,31 +187,45 @@ int find(char string[]){
     }return 0;
 }
 
-void compare(char string[]){
-    int i, j;
+int compare(char string[]){
+    int plus = 0;
     char result[k];
-    int occurrence[k];                           //nome da cambiare
-
-    for (i = 0; i < k; i++){
-        if (string[i] == reference[i]){
-            result[i] = '+';
-            occurrence[i] = 1;
-        }else{
-            result[i] = '/';
-            occurrence[i] = 0;
-        }
-    }
-
-    for (i = 0; i < k; i++){
-        for (j = 0; j < k; j++){
-            if (occurrence[]){
-
+    
+    for (int i = 0; i < k; i++) {
+        if (result[i] != '+'){
+            if (string[i] == reference[i] ) {
+                result[i] = '+';
+                plus++;
+            } else {
+                for (int j = 0; j < k; j++) {
+                    if (reference[j] == string[i]) {         //potrei mette && j != i
+                        n_char_reference++;
+                        if (reference[j] == string[j]) {
+                            if(j > i){
+                                result[j] = '+';
+                                plus++;                      //mezzo inutile (è più per precisione, da eliminare in caso di non passing upto18)
+                            }
+                            n_char_right_reference++;
+                        }
+                    }
+                    if (j < i && result[j] == '|' && string[j] == string[i]) {
+                        diff_cont++;
+                    }
+                }
+                if (diff_cont >= (n_char_reference - n_char_right_reference)) {
+                    result[i] = '/';
+                } else {
+                    result[i] = '|';
+                }
+                n_char_reference = 0;
+                n_char_right_reference = 0;
+                diff_cont = 0;
             }
         }
     }
 
-
-
-
+    if (plus == k) {
+		return 1;
+    } return 0;
 
 }
