@@ -15,11 +15,12 @@ int find(char string[]);
 int compare(char string[]);
 
 int k;
-char reference[10];
 Node *root;
+char reference[10], *rightLetterAndPlace, *rightLetterWrongPlace, *wrongLetters, *letterOccurrence;
+int *goodPosition, *halfGoodPosition, *minimumNumber, *perfectCount;
 
 int main(){
-    //int first_turn = 1;
+    int first_match = 1;
     //int quit = 0;
     int end = 0;
     int count = 0;
@@ -28,6 +29,16 @@ int main(){
     Node *node = NULL;
 
     fscanf(stdin, "%d", &k);
+
+    rightLetterWrongPlace = malloc(sizeof(char) * k*k);
+	rightLetterAndPlace = malloc(sizeof(char) * (k+1));
+	minimumNumber = malloc(sizeof(int) * (k+1));
+	goodPosition = malloc(sizeof(int) * (k+1));
+	letterOccurrence = malloc(sizeof(char) * (k+1));
+	halfGoodPosition = malloc(sizeof(int) * k*k);
+	perfectCount = malloc(sizeof(int) * (k+1));
+	wrongLetters = malloc(sizeof(char) * 64);
+
     fscanf(stdin, "%s", string);
     while (string[0] != '+'){
         node = malloc(sizeof(Node) + (sizeof(char) * (k+1)));
@@ -49,6 +60,34 @@ int main(){
 
     while (1){
         if(string[1] == 'n'){
+            if(first_match){
+                memset(rightLetterAndPlace, '#', k+1);
+			    memset(rightLetterWrongPlace, '#', k*k);
+			    memset(wrongLetters, '#', 64);
+			    memset(letterOccurrence, '#', k+1);
+			    memset(minimumNumber, 0, (k+1)*4);
+			    memset(perfectCount, 0, (k+1)*4);
+            }else{
+                for(int i = 0; rightLetterAndPlace[i] != '#'; i++){
+                    rightLetterAndPlace[i] == '#';
+                }
+                for(int i = 0; rightLetterWrongPlace[i] != '#'; i++){
+                    rightLetterWrongPlace[i] == '#';
+                }
+                for(int i = 0; wrongLetters[i] != '#'; i++){
+                    wrongLetters[i] == '#';
+                }
+                for(int i = 0; letterOccurrence[i] != '#'; i++){
+                    minimumNumber[i] == 0;
+                }
+                for(int i = 0; letterOccurrence[i] != '#'; i++){
+                    perfectCount[i] == 0;
+                }
+                for(int i = 0; letterOccurrence[i] != '#'; i++){
+                    letterOccurrence[i] == '#';
+                }
+            }
+
             fscanf(stdin, "%s", reference);
             fscanf(stdin, "%d", &attempts);
             fscanf(stdin, "%s", string);
@@ -110,7 +149,11 @@ int main(){
                 insertNode(node);
                 fscanf(stdin, "%s", string);
             }
-        }fscanf(stdin, "%s", string);
+        }
+        if (first_match){
+            first_match = 0;
+        }
+        fscanf(stdin, "%s", string);
     }
 
     //printTree(root);
@@ -188,19 +231,37 @@ int find(char string[]){
 }
 
 int compare(char string[]){
+    int n_char_reference = 0;
+    int n_char_right_reference = 0;
+    int diff_cont = 0;
     int plus = 0;
-    char result[k];
+    int j;
+    char flag = '0';
+    char result[k], x[k];
     
     for (int i = 0; i < k; i++) {
         if (result[i] != '+'){
             if (string[i] == reference[i] ) {
                 result[i] = '+';
                 plus++;
+                for (j = 0; rightLetterAndPlace != '#'; j++){
+                    if (rightLetterAndPlace[j] == string[i] && goodPosition[j] == i){
+                        flag = '1';
+                        break;
+                    }
+                }if (flag == '0'){
+                    rightLetterAndPlace[j] = string[i];
+                    goodPosition[j] == i;
+                }
             } else {
-                for (int j = 0; j < k; j++) {
-                    if (reference[j] == string[i]) {         //potrei mette && j != i
+                for (j = 0; j < k; j++) {
+                    if (flag == '0' && string[k-j-1] == string[i] && reference[k-j-1] != string[k-j-1]){
+                        x[k-j-1] = 'x';
+                        flag = 1;
+                    }
+                    if (reference[j] == string[i]) {         //potrei mettere && j != i??
                         n_char_reference++;
-                        if (reference[j] == string[j]) {
+                        if (reference[j] == string[j]) {        //forse potrei mettere if (result[j] == '+')????
                             if(j > i){
                                 result[j] = '+';
                                 plus++;                      //mezzo inutile (è più per precisione, da eliminare in caso di non passing upto18)
@@ -211,17 +272,62 @@ int compare(char string[]){
                     if (j < i && result[j] == '|' && string[j] == string[i]) {
                         diff_cont++;
                     }
-                }
+                }flag = 0;
                 if (diff_cont >= (n_char_reference - n_char_right_reference)) {
                     result[i] = '/';
+                    /*if (n_char_reference != 0){
+                        for (j = 0; letterOccurrence != '#'; j++){
+                            if (letterOccurrence[j] == string[i] && goodPosition[j] == i){
+                                flag = '1';
+                                break;
+                            }
+                        }if (flag == '0'){
+                            rightLetterAndPlace[j] = string[i];
+                            goodPosition[j] == i;
+                        }
+                    }*/
                 } else {
                     result[i] = '|';
+                    
+                }
+
+                //if (n_char_right_reference + n_char_reference)
+
+                if (n_char_reference == 0){
+                    for (j = 0; wrongLetters != '#'; j++){
+                        if (wrongLetters[j] == string[i]){
+                            flag = '1';
+                            break;
+                        }
+                    }if (flag == '0'){
+                        wrongLetters[j] = string[i];
+                    }
+                }else{
+                    for (j = 0; rightLetterWrongPlace != '#'; j++){
+                        if (rightLetterWrongPlace[j] == string[i] && halfGoodPosition[j] == i){
+                            flag = '1';
+                            break;
+                        }
+                    }if (flag == '0'){
+                        rightLetterWrongPlace[j] = string[i];
+                        halfGoodPosition[j] == i;
+                    }
                 }
                 n_char_reference = 0;
                 n_char_right_reference = 0;
                 diff_cont = 0;
             }
-        }
+        }else{
+            for (j = 0; rightLetterAndPlace != '#'; j++){
+                    if (rightLetterAndPlace[j] == string[i] && goodPosition[j] == i){
+                        flag = '1';
+                        break;
+                    }
+                }if (flag == '0'){
+                    rightLetterAndPlace[j] = string[i];
+                    goodPosition[j] == i;
+                }
+        }flag = 0;
     }
 
     if (plus == k) {
