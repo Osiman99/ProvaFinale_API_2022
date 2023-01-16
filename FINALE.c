@@ -210,10 +210,10 @@ int find(char string[]){
     x = root;
     while (x != NULL){
         for (i = 0; i < k; i++){
-            if (node->word[i] > x->word[i]){
+            if (string[i] > x->word[i]){
                 l_r = 'r';
                 break;
-            }else if (node->word[i] < x->word[i]){
+            }else if (string[i] < x->word[i]){
                 l_r = 'l';
                 break;
             }
@@ -244,20 +244,19 @@ int compare(char string[]){
             if (string[i] == reference[i] ) {
                 result[i] = '+';
                 plus++;
-                for (j = 0; rightLetterAndPlace != '#'; j++){
+                for (j = 0; rightLetterAndPlace[j] != '#'; j++){
                     if (rightLetterAndPlace[j] == string[i] && goodPosition[j] == i){
-                        flag = '1';
                         break;
                     }
-                }if (flag == '0'){
+                }if (rightLetterAndPlace[j] == '#'){
                     rightLetterAndPlace[j] = string[i];
-                    goodPosition[j] == i;
+                    goodPosition[j] = i;
                 }
             } else {
                 for (j = 0; j < k; j++) {
-                    if (flag == '0' && string[k-j-1] == string[i] && reference[k-j-1] != string[k-j-1]){
+                    if (flag == '0' && string[k-j-1] == string[i] && reference[k-j-1] != string[k-j-1] && x[k-j-1] != 'x'){              //potrei mettere if j>i al posto del flag
                         x[k-j-1] = 'x';
-                        flag = 1;
+                        flag = '1';
                     }
                     if (reference[j] == string[i]) {         //potrei mettere && j != i??
                         n_char_reference++;
@@ -272,66 +271,82 @@ int compare(char string[]){
                     if (j < i && result[j] == '|' && string[j] == string[i]) {
                         diff_cont++;
                     }
-                }flag = 0;
-                if (diff_cont >= (n_char_reference - n_char_right_reference)) {
-                    result[i] = '/';
-                    /*if (n_char_reference != 0){
-                        for (j = 0; letterOccurrence != '#'; j++){
-                            if (letterOccurrence[j] == string[i] && goodPosition[j] == i){
-                                flag = '1';
-                                break;
-                            }
-                        }if (flag == '0'){
-                            rightLetterAndPlace[j] = string[i];
-                            goodPosition[j] == i;
-                        }
-                    }*/
-                } else {
-                    result[i] = '|';
-                    
                 }
 
-                //if (n_char_right_reference + n_char_reference)
+                if (diff_cont >= (n_char_reference - n_char_right_reference)) {
+                    result[i] = '/';
+                    if (n_char_reference != 0 && x[i] == 'x'){
+                        for (j = 0; letterOccurrence[j] != '#'; j++){
+                            if (letterOccurrence[j] == string[i] && perfectCount[j] == 0){
+                                break;
+                            }
+                        }if (letterOccurrence[j] == '#'){
+                            letterOccurrence[j] = string[i];
+                            perfectCount[j] = n_char_right_reference + diff_cont;
+                        }else{
+                            perfectCount[j] = n_char_right_reference + diff_cont;
+                            minimumNumber[j] = 0;
+                        }
+                    }
+                } else {
+                    result[i] = '|';
+                    if (x[i] == 'x'){
+                        for (j = 0; letterOccurrence[j] != '#'; j++){
+                            if (letterOccurrence[j] == string[i]){
+                                    break;
+                            }
+                        }if (letterOccurrence[j] == '#'){
+                            letterOccurrence[j] = string[i];
+                            minimumNumber[j] = n_char_right_reference + diff_cont + 1;
+                        }else{
+                            if (minimumNumber[j] != 0 && minimumNumber[j] < n_char_right_reference + diff_cont + 1){
+                                minimumNumber[j] = n_char_right_reference + diff_cont + 1;
+                            }
+                        }
+                    }  
+                }
 
                 if (n_char_reference == 0){
-                    for (j = 0; wrongLetters != '#'; j++){
+                    for (j = 0; wrongLetters[j] != '#'; j++){
                         if (wrongLetters[j] == string[i]){
-                            flag = '1';
                             break;
                         }
-                    }if (flag == '0'){
+                    }if (wrongLetters[j] == '#'){
                         wrongLetters[j] = string[i];
                     }
                 }else{
-                    for (j = 0; rightLetterWrongPlace != '#'; j++){
+                    for (j = 0; rightLetterWrongPlace[j] != '#'; j++){
                         if (rightLetterWrongPlace[j] == string[i] && halfGoodPosition[j] == i){
-                            flag = '1';
                             break;
                         }
-                    }if (flag == '0'){
+                    }if (rightLetterWrongPlace[j] == '#'){
                         rightLetterWrongPlace[j] = string[i];
-                        halfGoodPosition[j] == i;
+                        halfGoodPosition[j] = i;
                     }
                 }
                 n_char_reference = 0;
                 n_char_right_reference = 0;
                 diff_cont = 0;
+                flag = '0';
             }
         }else{
-            for (j = 0; rightLetterAndPlace != '#'; j++){
-                    if (rightLetterAndPlace[j] == string[i] && goodPosition[j] == i){
-                        flag = '1';
-                        break;
-                    }
-                }if (flag == '0'){
-                    rightLetterAndPlace[j] = string[i];
-                    goodPosition[j] == i;
+            for (j = 0; rightLetterAndPlace[j] != '#'; j++){
+                if (rightLetterAndPlace[j] == string[i] && goodPosition[j] == i){
+                    break;
                 }
-        }flag = 0;
+            }if (rightLetterAndPlace[j] == '#'){
+                rightLetterAndPlace[j] = string[i];
+                goodPosition[j] = i;
+            }
+        }
     }
 
     if (plus == k) {
 		return 1;
-    } return 0;
+    }
+
+    result[k] = '\0';
+    fprintf(stdout, "%s\n", result);
+    return 0;
 
 }
