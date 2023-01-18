@@ -13,6 +13,7 @@ void insertNode(Node *node);
 void printTree(Node *x);
 int find(char string[]);
 int compare(char string[]);
+int filter(char string[]);
 
 int k;
 Node *root;
@@ -69,22 +70,22 @@ int main(){
 			    memset(perfectCount, 0, (k+1)*4);
             }else{
                 for(int i = 0; rightLetterAndPlace[i] != '#'; i++){
-                    rightLetterAndPlace[i] == '#';
+                    rightLetterAndPlace[i] = '#';
                 }
                 for(int i = 0; rightLetterWrongPlace[i] != '#'; i++){
-                    rightLetterWrongPlace[i] == '#';
+                    rightLetterWrongPlace[i] = '#';
                 }
                 for(int i = 0; wrongLetters[i] != '#'; i++){
-                    wrongLetters[i] == '#';
+                    wrongLetters[i] = '#';
                 }
                 for(int i = 0; letterOccurrence[i] != '#'; i++){
-                    minimumNumber[i] == 0;
+                    minimumNumber[i] = 0;
                 }
                 for(int i = 0; letterOccurrence[i] != '#'; i++){
-                    perfectCount[i] == 0;
+                    perfectCount[i] = 0;
                 }
                 for(int i = 0; letterOccurrence[i] != '#'; i++){
-                    letterOccurrence[i] == '#';
+                    letterOccurrence[i] = '#';
                 }
             }
 
@@ -349,4 +350,49 @@ int compare(char string[]){
     fprintf(stdout, "%s\n", result);
     return 0;
 
+}
+
+int filter(char string[]){
+    int sum = 0;
+
+    for (int i = 0; rightLetterAndPlace[i] != '#'; i++){
+        if(rightLetterAndPlace[i] != string[goodPosition[i]]){
+            return 0;
+        }
+    }
+    for (int i = 0; rightLetterWrongPlace[i] != '#'; i++){
+        if (rightLetterWrongPlace[i] == string[halfGoodPosition[i]]){
+            return 0;
+        }
+    }
+    for (int i = 0; wrongLetters[i] != '#'; i++){
+        for (int j = 0; j < k; j++){
+            if(wrongLetters[i] == string[j]){
+                return 0;
+            }
+        }
+    }
+    for (int i = 0; letterOccurrence[i] != '#'; i++){
+        if (minimumNumber[i] != 0){
+            for (int j = 0; j < k; j++){
+                if (letterOccurrence[i] == string[j]){
+                    sum++;
+                }
+            }if (sum < minimumNumber[i]){
+                return 0;
+            }
+        }else{
+            for (int j = 0; j < k; j++){
+                if (letterOccurrence[i] == string[j]){
+                    sum++;
+                }
+                if (sum > perfectCount[i]){
+                    return 0;
+                }
+            }if (sum != perfectCount[i]){
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
