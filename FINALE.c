@@ -4,32 +4,35 @@
 #include <time.h>
 
 typedef struct node {
-	char * word;     
-	struct node *right, *left;
-	int available;
+	char * string;     
+	struct node *right, *left, *next;
+	char available;
 } Node;
 
 void insertNode(Node *node);
-void printTree(Node *x);
-int find(char string[]);
-int compare(char string[]);
-int filter(char string[]);
+void printFilteredWords(Node *x);
+int findNode(char string[]);
+int compareWord(char string[]);
+int filterWord(Node *node);
+int countWords(char string[]);
+int myStrcmp(const char* s1, const char* s2);
+Node* createNode(char string[]);
+//void printTree(Node *x);
 
-int k;
-Node *root;
+int k, number_available;
+Node *root, *last_not_available, *available;
+Node *not_available = NULL;
+Node *last_available = NULL;
 char reference[10], *rightLetterAndPlace, *rightLetterWrongPlace, *wrongLetters, *letterOccurrence;
 int *goodPosition, *halfGoodPosition, *minimumNumber, *perfectCount;
 
 int main(){
-    int first_match = 1;
-    //int quit = 0;
-    int end = 0;
-    int count = 0;
-    int attempts;
+    int attempts, count, end;
+    char first_match = '1';
     char string[10];
     Node *node = NULL;
 
-    fscanf(stdin, "%d", &k);
+    fscanf(stdin, "%d\n%s", &k, string);
 
     rightLetterWrongPlace = malloc(sizeof(char) * k*k);
 	rightLetterAndPlace = malloc(sizeof(char) * (k+1));
@@ -40,28 +43,34 @@ int main(){
 	perfectCount = malloc(sizeof(int) * (k+1));
 	wrongLetters = malloc(sizeof(char) * 64);
 
-    fscanf(stdin, "%s", string);
     while (string[0] != '+'){
-        node = malloc(sizeof(Node) + (sizeof(char) * (k+1)));
-        
-        node->right = NULL;
-        node->left = NULL;
-        node->available = 1;
-        node->word = (char *)&(node->word) + sizeof(Node);
-        for (int i = 0; i < k; i++) {
-            node->word[i] = string[i];
-        }
-        node->word[k] = '\0';
-        
+        node = createNode(string);
         insertNode(node);
+        if (last_available != NULL){
+            last_available->next = node;
+        }
+        last_available = node;
         fscanf(stdin, "%s", string);
-        
-        //fprintf(stdout, "%s\n", string);
     }
+
+    available = root;
+    first_match = '1';
 
     while (1){
         if(string[1] == 'n'){
-            if(first_match){
+            Node *tmp;
+			tmp = not_available;                                                 //da mettere a posto
+			while (tmp != NULL) {                                                 //da mettere a posto
+				tmp->available = 'v';                                                 //da mettere a posto
+				tmp = tmp->next;                                                 //da mettere a posto
+			}                                                 //da mettere a posto
+            last_available->next = not_available;                                                 //da mettere a posto
+            last_available = last_not_available;                                                 //da mettere a posto
+            not_available = NULL;                                                 //da mettere a posto
+            number_available = 0;
+            end = 0;
+            count = 0;
+            if(first_match == '1'){
                 memset(rightLetterAndPlace, '#', k+1);
 			    memset(rightLetterWrongPlace, '#', k*k);
 			    memset(wrongLetters, '#', 64);
@@ -89,36 +98,32 @@ int main(){
                 }
             }
 
-            fscanf(stdin, "%s", reference);
-            fscanf(stdin, "%d", &attempts);
-            fscanf(stdin, "%s", string);
+            fscanf(stdin, "%s\n%d\n%s", reference, &attempts, string);
             while (!end){
                 if (string[0] == '+'){
                     if (string[1] == 'i'){
                         fscanf(stdin, "%s", string);
                         while(string[0] != '+'){
-                            node = malloc(sizeof(Node) + (sizeof(char) * (k+1)));
-                            node->right = NULL;
-                            node->left = NULL;
-                            node->available = 1;
-                            node->word = (char *)&(node->word) + sizeof(Node);
-                            for (int i = 0; i < k; i++) {
-                                node->word[i] = string[i];
-                            }
-                            node->word[k] = '\0';
+                            node = createNode(string);
                             insertNode(node);
-                            //filter();
+                            if (filterWord(node)){
+                                last_available->next = node;
+                                last_available = node;
+                            }else{
+                                node->next = last_not_available->next;
+                                last_not_available->next = node;
+                            }
                             fscanf(stdin, "%s", string);
                         }
                     }else{
-                        //stampa_filtrate
+                        printFilteredWords(root);
                     }
                 }else{    
-                    if(!find(string)){
+                    if(!findNode(string)){
                         fprintf(stdout, "not_exists\n");
                     }else{
-                        if (!compare(string)){
-                            //count();
+                        if (!compareWord(string)){
+                            countWords(string);
                             count++;
                             if(count == attempts){
                                 fprintf(stdout, "ko\n");
@@ -137,101 +142,98 @@ int main(){
         }else{
             fscanf(stdin, "%s", string);
             while(string[0] != '+'){
-                node = malloc(sizeof(Node) + (sizeof(char) * (k+1)));
-        
-                node->right = NULL;
-                node->left = NULL;
-                node->available = 1;
-                node->word = (char *)&(node->word) + sizeof(Node);
-                for (int i = 0; i < k; i++) {
-                    node->word[i] = string[i];
-                }
-                node->word[k] = '\0';
+                node = createNode(string);
                 insertNode(node);
                 fscanf(stdin, "%s", string);
             }
         }
-        if (first_match){
-            first_match = 0;
+        if (first_match == '1'){
+            first_match = '0';
         }
         fscanf(stdin, "%s", string);
     }
-
     //printTree(root);
-
-
     return 0;
 }
 
-void printTree(Node *x){
+void printFilteredWords(Node *x){
     if (x != NULL){
-        printTree(x->left);
-        fprintf(stdout, "%s\n", x->word);
-        printTree(x->right);
+        printFilteredWords(x->left);
+        if (x->available != 'x'){
+            fprintf(stdout, "%s\n", x->string);
+        }
+        printFilteredWords(x->right);
     }
 }
 
+int myStrcmp(const char* s1, const char* s2){
+	while (*s1 && (*s1==*s2))
+	s1++,s2++;
+	return *(const unsigned char*)s1 -*(const unsigned char*)s2;
+}
+
+Node* createNode(char string[]){
+	Node *node = malloc(sizeof(Node) + (sizeof(char) * (k+1)));
+        
+    node->right = NULL;
+    node->left = NULL;
+    node->string = (char *)&(node->string) + sizeof(Node);
+    for (int i = 0; i < k; i++) {
+        node->string[i] = string[i];
+    }
+    node->string[k] = '\0';
+	return node;
+}
+/*void printTree(Node *x){
+    if (x != NULL){
+        printTree(x->left);
+        fprintf(stdout, "%s\n", x->string);
+        printTree(x->right);
+    }
+}*/
+
 void insertNode(Node *node){
     Node *x, *y;
-    int i;
-    char l_r ='n';
+    int compare;
     
     y = NULL;
     x = root;
     while (x != NULL){
         y = x;
-        for (i = 0; i < k; i++){
-            if (node->word[i] > x->word[i]){
-                l_r = 'r';
-                break;
-            }else if (node->word[i] < x->word[i]){
-                l_r = 'l';
-                break;
-            }
-        }
-        if (l_r == 'r'){
-            x = x->right;
-        }else {
+        compare = myStrcmp(node->string, x->string);
+        if (compare < 0){
             x = x->left;
+        }else{
+            x = x->right;
         }
+
     }if (y == NULL){
         root = node;
-    }else if (l_r == 'r'){
-        y->right = node;
-    }else {
+    }else if (compare < 0){
         y->left = node;
+    }else {
+        y->right = node;
     }
 }
 
-int find(char string[]){
+int findNode(char string[]){
     Node *x;
-    int i;
-    char l_r ='n';
+    int compare;
     
     x = root;
     while (x != NULL){
-        for (i = 0; i < k; i++){
-            if (string[i] > x->word[i]){
-                l_r = 'r';
-                break;
-            }else if (string[i] < x->word[i]){
-                l_r = 'l';
-                break;
-            }
-        }
-        if (i == k){
-            return 1;
-        }
-
-        if (l_r == 'r'){
-            x = x->right;
-        }else {
+        compare = myStrcmp(string, x->string);
+        if (compare < 0){
             x = x->left;
+        }else if (compare > 0){
+            x = x->right;
+        }else{
+			return 1;
         }
     }return 0;
 }
 
-int compare(char string[]){
+int compareWord(char string[]){
     int n_char_reference = 0;
     int n_char_right_reference = 0;
     int diff_cont = 0;
@@ -352,22 +354,25 @@ int compare(char string[]){
 
 }
 
-int filter(char string[]){
+int filterWord(Node *node){
     int sum = 0;
 
     for (int i = 0; rightLetterAndPlace[i] != '#'; i++){
-        if(rightLetterAndPlace[i] != string[goodPosition[i]]){
+        if(rightLetterAndPlace[i] != node->string[goodPosition[i]]){
+            node->available = 'x';
             return 0;
         }
     }
     for (int i = 0; rightLetterWrongPlace[i] != '#'; i++){
-        if (rightLetterWrongPlace[i] == string[halfGoodPosition[i]]){
+        if (rightLetterWrongPlace[i] == node->string[halfGoodPosition[i]]){
+            node->available = 'x';
             return 0;
         }
     }
     for (int i = 0; wrongLetters[i] != '#'; i++){
         for (int j = 0; j < k; j++){
-            if(wrongLetters[i] == string[j]){
+            if(wrongLetters[i] == node->string[j]){
+                node->available = 'x';
                 return 0;
             }
         }
@@ -375,24 +380,68 @@ int filter(char string[]){
     for (int i = 0; letterOccurrence[i] != '#'; i++){
         if (minimumNumber[i] != 0){
             for (int j = 0; j < k; j++){
-                if (letterOccurrence[i] == string[j]){
+                if (letterOccurrence[i] == node->string[j]){
                     sum++;
                 }
             }if (sum < minimumNumber[i]){
+                node->available = 'x';
                 return 0;
             }
         }else{
             for (int j = 0; j < k; j++){
-                if (letterOccurrence[i] == string[j]){
+                if (letterOccurrence[i] == node->string[j]){
                     sum++;
                 }
                 if (sum > perfectCount[i]){
+                    node->available = 'x';
                     return 0;
                 }
             }if (sum != perfectCount[i]){
+                node->available = 'x';
                 return 0;
             }
         }
     }
     return 1;
+}
+
+int countWords(char string[]){
+    Node *current, *previous;
+    char flag = '0';
+
+    current = available;
+    previous = NULL;
+    if (not_available == NULL){
+        flag = '1';
+    }
+    while (current != NULL){
+        if(!filterWord(current)){
+            if (previous == NULL){
+                available = current->next;
+                if (flag == '1'){
+                    current->next = not_available;
+                    last_not_available = current;
+                    flag = '0';
+                }else{
+                    current->next = last_not_available->next;
+                }
+                last_not_available->next = current;
+                current = available;
+            }else{
+                previous->next = current->next;
+                if (flag == '1'){
+                    current->next = not_available;
+                    last_not_available = current;
+                    flag = '0';
+                }else{
+                    current->next = last_not_available;
+                }
+                last_not_available->next = current;
+                current = previous->next;
+            }
+        }else{
+            previous = current;
+            current = current->next;
+        }
+    }
 }
