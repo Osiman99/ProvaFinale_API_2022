@@ -11,10 +11,10 @@ typedef struct node {
 
 void insertNode(Node *node);
 void printFilteredWords(Node *x);
+void countWords(char string[]);
 int findNode(char string[]);
-int compareWord(char string[]);
+int compareWord(char string[], char *change);
 int filterWord(Node *node);
-int countWords(char string[]);
 int myStrcmp(const char* s1, const char* s2);
 Node* createNode(char string[]);
 //void printTree(Node *x);
@@ -58,16 +58,6 @@ int main(){
 
     while (1){
         if(string[1] == 'n'){
-            Node *tmp;
-			tmp = not_available;                                                 //da mettere a posto
-			while (tmp != NULL) {                                                 //da mettere a posto
-				tmp->available = 'v';                                                 //da mettere a posto
-				tmp = tmp->next;                                                 //da mettere a posto
-			}                                                 //da mettere a posto
-            last_available->next = not_available;                                                 //da mettere a posto
-            last_available = last_not_available;                                                 //da mettere a posto
-            not_available = NULL;                                                 //da mettere a posto
-            number_available = 0;
             end = 0;
             count = 0;
             if(first_match == '1'){
@@ -78,6 +68,15 @@ int main(){
 			    memset(minimumNumber, 0, (k+1)*4);
 			    memset(perfectCount, 0, (k+1)*4);
             }else{
+                Node *tmp;
+			    tmp = not_available;                 
+			    while (tmp != NULL) {                
+			    	tmp->available = 'v';            
+			    	tmp = tmp->next;                 
+			    }                                    
+                last_available->next = not_available;
+                last_available = last_not_available; 
+                not_available = NULL;  
                 for(int i = 0; rightLetterAndPlace[i] != '#'; i++){
                     rightLetterAndPlace[i] = '#';
                 }
@@ -109,6 +108,7 @@ int main(){
                             if (filterWord(node)){
                                 last_available->next = node;
                                 last_available = node;
+                                number_available++;
                             }else{
                                 node->next = last_not_available->next;
                                 last_not_available->next = node;
@@ -122,8 +122,13 @@ int main(){
                     if(!findNode(string)){
                         fprintf(stdout, "not_exists\n");
                     }else{
-                        if (!compareWord(string)){
-                            countWords(string);
+                        char change;
+                        change = '0';
+                        if (!compareWord(string, &change)){
+                            if (change == '1'){
+                                countWords(string);
+                            }
+                            fprintf(stdout, "%d\n", number_available);
                             count++;
                             if(count == attempts){
                                 fprintf(stdout, "ko\n");
@@ -144,6 +149,8 @@ int main(){
             while(string[0] != '+'){
                 node = createNode(string);
                 insertNode(node);
+                last_available->next = node;
+                last_available = node;
                 fscanf(stdin, "%s", string);
             }
         }
@@ -233,7 +240,7 @@ int findNode(char string[]){
     }return 0;
 }
 
-int compareWord(char string[]){
+int compareWord(char string[], char *change){
     int n_char_reference = 0;
     int n_char_right_reference = 0;
     int diff_cont = 0;
@@ -254,6 +261,7 @@ int compareWord(char string[]){
                 }if (rightLetterAndPlace[j] == '#'){
                     rightLetterAndPlace[j] = string[i];
                     goodPosition[j] = i;
+                    *change = '1';
                 }
             } else {
                 for (j = 0; j < k; j++) {
@@ -286,9 +294,11 @@ int compareWord(char string[]){
                         }if (letterOccurrence[j] == '#'){
                             letterOccurrence[j] = string[i];
                             perfectCount[j] = n_char_right_reference + diff_cont;
+                            *change = '1';
                         }else{
                             perfectCount[j] = n_char_right_reference + diff_cont;
                             minimumNumber[j] = 0;
+                            *change = '1';
                         }
                     }
                 } else {
@@ -301,9 +311,11 @@ int compareWord(char string[]){
                         }if (letterOccurrence[j] == '#'){
                             letterOccurrence[j] = string[i];
                             minimumNumber[j] = n_char_right_reference + diff_cont + 1;
+                            *change = '1';
                         }else{
                             if (minimumNumber[j] != 0 && minimumNumber[j] < n_char_right_reference + diff_cont + 1){
                                 minimumNumber[j] = n_char_right_reference + diff_cont + 1;
+                                *change = '1';
                             }
                         }
                     }  
@@ -316,6 +328,7 @@ int compareWord(char string[]){
                         }
                     }if (wrongLetters[j] == '#'){
                         wrongLetters[j] = string[i];
+                        *change = '1';
                     }
                 }else{
                     for (j = 0; rightLetterWrongPlace[j] != '#'; j++){
@@ -325,6 +338,7 @@ int compareWord(char string[]){
                     }if (rightLetterWrongPlace[j] == '#'){
                         rightLetterWrongPlace[j] = string[i];
                         halfGoodPosition[j] = i;
+                        *change = '1';
                     }
                 }
                 n_char_reference = 0;
@@ -340,6 +354,7 @@ int compareWord(char string[]){
             }if (rightLetterAndPlace[j] == '#'){
                 rightLetterAndPlace[j] = string[i];
                 goodPosition[j] = i;
+                *change = '1';
             }
         }
     }
@@ -401,14 +416,16 @@ int filterWord(Node *node){
                 return 0;
             }
         }
+        sum = 0;
     }
     return 1;
 }
 
-int countWords(char string[]){
+void countWords(char string[]){
     Node *current, *previous;
     char flag = '0';
 
+    number_available = 0;
     current = available;
     previous = NULL;
     if (not_available == NULL){
@@ -420,26 +437,32 @@ int countWords(char string[]){
                 available = current->next;
                 if (flag == '1'){
                     current->next = not_available;
-                    last_not_available = current;
+                    not_available = current;
                     flag = '0';
                 }else{
                     current->next = last_not_available->next;
+                    last_not_available->next = current;
                 }
-                last_not_available->next = current;
+                last_not_available = current;
                 current = available;
             }else{
+                if (current == last_available){
+                    last_available = previous;
+                }
                 previous->next = current->next;
                 if (flag == '1'){
                     current->next = not_available;
-                    last_not_available = current;
+                    not_available = current;
                     flag = '0';
                 }else{
-                    current->next = last_not_available;
+                    current->next = last_not_available->next;
+                    last_not_available->next = current;
                 }
-                last_not_available->next = current;
+                last_not_available = current;
                 current = previous->next;
             }
         }else{
+            number_available++;
             previous = current;
             current = current->next;
         }
