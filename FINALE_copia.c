@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+//#include <time.h>
 
 typedef struct node {
 	char *string;     
@@ -19,7 +19,6 @@ typedef enum {
 } bool;
 
 void insertNode(Node *node, Node **root);
-Node *delWord(Node *root, char word[], int len);
 void printFilteredWords(Node *x);
 void countWords(char string[], Lists *lists);
 bool findNode(char string[], Node **root);
@@ -28,16 +27,16 @@ bool filterWord(Node *node);
 int myStrcmp(const char* s1, const char* s2);
 int readLine(char string[]);
 Node* createNode(char string[]);
-void printTree(Node *x);
+//void printTree(Node *x);
 
 int len;
 char reference[20], *rightLetterAndPlace, *rightLetterWrongPlace, *wrongLetters, *letterOccurrence;
 int *goodPosition, *halfGoodPosition, *minimumNumber, *perfectCount;
 
 int main(){
-    clock_t start, endo;
+    /*clock_t start, endo;
 	double execution_time;
-	start = clock();
+	start = clock();*/
 
     int attempts, count, end;
     int eof = 0;
@@ -192,9 +191,9 @@ int main(){
         }
         eof = readLine(string);
     }
-    endo = clock();
+    /*endo = clock();
 	execution_time = ((double)(endo - start))/CLOCKS_PER_SEC;
-	//printf("time -> %f", execution_time);
+	printf("time -> %f", execution_time);*/
     //printTree(root);
     return 0;
 }
@@ -244,14 +243,14 @@ Node* createNode(char string[]){
 	return node;
 }
 
-void printTree(Node *x){
+/*void printTree(Node *x){
     if (x != NULL){
         printTree(x->left);
         fputs(x->string, stdout);
         fputs("\n", stdout);
         printTree(x->right);
     }
-}
+}*/
 
 /*void freeWrongLetters(tree *letters, int k) {
 	for (int i=0; i<k; i++){
@@ -531,42 +530,3 @@ void countWords(char string[], Lists *lists){
         }
     }
 }
-
-
-
-/*Node *delWord(Node *root, char word[], int len) {                         //dovrei ricambiare i nomi delle variabili all'interno di questa funzione e sistemare altre cose
-	if (root == NULL) return root;
-
-	int cmp = strcmpp(word, root->word);
-	
-	if (cmp < 0)
-		root->left = delWord(root->left, word, k);
-	else if (cmp > 0)
-		root->right = delWord(root->right, word, k);
-
-	else {
-    	if (root->left == NULL) {
-			node *temp = root->right;
-			free(root->word);
-			free(root);
-			return temp;
-		}else if (root->right == NULL) {
-			node *temp = root->left;
-			free(root->word);
-			free(root);
-			return temp;
-		}
-		node *temp = minValueNode(root->right);
-    	//strcpy(root->word, temp->word);
-		memcpy(root->word, temp->word, sizeof(char)*k+1);
-
-		root->right = delWord(root->right, temp->word, k);
-	}
-	return root;
-}*/
-
-/*void freeWrongLetters(tree *letters, int k) {                        //vecchio approccio
-	for (int i=0; i<k; i++){
-		freeTree(letters[i]);
-	}
-}*/
